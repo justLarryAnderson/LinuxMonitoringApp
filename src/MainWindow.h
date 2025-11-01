@@ -20,6 +20,7 @@ private:
     Gtk::Button m_RefreshButton;
     Gtk::Button m_StartCommandButton;
     Gtk::Button m_StopCommandButton;
+    Gtk::Button m_HelpButton;  // Новая кнопка Help
     Gtk::Entry m_CommandEntry;
     Gtk::Entry m_SearchEntry;
     Gtk::ScrolledWindow m_ScrolledWindow;
@@ -27,6 +28,7 @@ private:
     Gtk::TextView m_OutputTextView;
     Gtk::ProgressBar m_ProgressBar;
     Gtk::Statusbar m_Statusbar;
+    Gtk::Label m_StatusLabel;  // Новый Label для цветного статуса
     
     // Models
     Glib::RefPtr<Gtk::ListStore> m_ProcessListStore;
@@ -39,6 +41,7 @@ private:
     void onRefreshClicked();
     void onStartCommandClicked();
     void onStopCommandClicked();
+    void onHelpClicked();  // Новый обработчик для Help
     void onSearchChanged();
     void updateProcessList();
     void onCommandFinished(std::string output);
@@ -46,6 +49,7 @@ private:
     // UI setup
     void setupProcessTreeView();
     void setupStyles();
+    void showHelpDialog();  // Новый метод для показа справки
     
     // Tree model columns
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {

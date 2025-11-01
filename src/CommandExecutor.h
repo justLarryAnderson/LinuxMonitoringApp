@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <glibmm.h>
+#include <thread>
+#include <csignal>
 
 class CommandExecutor {
 public:
