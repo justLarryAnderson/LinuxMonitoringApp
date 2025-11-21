@@ -16,7 +16,6 @@ MainWindow::MainWindow() :
     set_title("Linux System Monitor");
     set_default_size(800, 600);
     
-    // Установка иконки приложения с правильным путем
     try {
         set_icon_from_file("resources/icons/app_icon.png");
     } catch (const Gtk::IconThemeError& ex) {
@@ -25,17 +24,13 @@ MainWindow::MainWindow() :
         std::cerr << "File error: " << ex.what() << std::endl;
     }
     
-    // Setup UI
     setupStyles();
-    setupProcessTreeView();
-    
-    // Header
+    setupProcessTreeView(); //make table   
     m_HeaderBox.set_border_width(10);
     m_HeaderBox.pack_start(m_TitleLabel, Gtk::PACK_EXPAND_WIDGET);
     m_HeaderBox.pack_start(m_RefreshButton, Gtk::PACK_SHRINK);
     m_HeaderBox.pack_start(m_HelpButton, Gtk::PACK_SHRINK);
     
-    // Command section
     m_CommandBox.set_border_width(10);
     m_CommandBox.pack_start(m_CommandEntry, Gtk::PACK_EXPAND_WIDGET);
     m_CommandBox.pack_start(m_StartCommandButton, Gtk::PACK_SHRINK);
@@ -43,29 +38,24 @@ MainWindow::MainWindow() :
     m_CommandEntry.set_placeholder_text("Введите команду (например: grep 'pattern' /path/to/file)");
     m_CommandEntry.set_margin_right(10);
     
-    // Search
     m_SearchEntry.set_placeholder_text("Поиск процессов...");
     m_SearchEntry.set_margin_top(10);
     m_SearchEntry.set_margin_bottom(10);
     m_SearchEntry.set_margin_left(10);
     m_SearchEntry.set_margin_right(10);
     
-    // Process list
     m_ScrolledWindow.add(m_ProcessTreeView);
     m_ScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     
-    // Output
     m_OutputTextView.set_editable(false);
     m_OutputTextView.set_wrap_mode(Gtk::WRAP_WORD);
     Gtk::ScrolledWindow* outputScroll = Gtk::manage(new Gtk::ScrolledWindow());
     outputScroll->add(m_OutputTextView);
     outputScroll->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     
-    // Status label setup
     m_StatusLabel.set_margin_top(5);
     m_StatusLabel.set_margin_bottom(5);
     
-    // Layout
     m_ContentBox.set_border_width(10);
     m_ContentBox.pack_start(m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
     m_ContentBox.pack_start(*outputScroll, Gtk::PACK_EXPAND_WIDGET);
@@ -80,7 +70,6 @@ MainWindow::MainWindow() :
     
     add(m_MainBox);
     
-    // Signals
     m_RefreshButton.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::onRefreshClicked));
     m_StartCommandButton.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::onStartCommandClicked));
     m_StopCommandButton.signal_clicked().connect(sigc::mem_fun(*this, &MainWindow::onStopCommandClicked));
@@ -98,21 +87,18 @@ void MainWindow::setupProcessTreeView() {
     m_ProcessListStore = Gtk::ListStore::create(m_Columns);
     m_ProcessTreeView.set_model(m_ProcessListStore);
     
-    // Add columns
     m_ProcessTreeView.append_column("PID", m_Columns.m_col_pid);
     m_ProcessTreeView.append_column("Имя", m_Columns.m_col_name);
     m_ProcessTreeView.append_column("CPU%", m_Columns.m_col_cpu);
     m_ProcessTreeView.append_column("Память%", m_Columns.m_col_memory);
     m_ProcessTreeView.append_column("Статус", m_Columns.m_col_status);
     
-    // Set column properties
     for (int i = 0; i < 5; i++) {
         Gtk::TreeViewColumn* column = m_ProcessTreeView.get_column(i);
         if (column) {
             column->set_resizable(true);
             column->set_sort_column(i);
             
-            // Устанавливаем черный цвет текста для каждой колонки
             auto cell_renderer = column->get_first_cell();
             if (auto text_renderer = dynamic_cast<Gtk::CellRendererText*>(cell_renderer)) {
                 text_renderer->property_foreground() = "black";
@@ -159,7 +145,6 @@ void MainWindow::onStartCommandClicked() {
     m_ProgressBar.pulse();
     m_Statusbar.push("Выполнение команды...");
     
-    // Сбрасываем статус перед выполнением новой команды
     m_StatusLabel.set_text("");
     
     m_CommandExecutor.executeCommandAsync(command, 
@@ -223,21 +208,17 @@ void MainWindow::onCommandFinished(std::string output) {
 }
 
 void MainWindow::showHelpDialog() {
-    // Создаем кастомный диалог с правильным конструктором
     Gtk::Dialog dialog("Помощь - Системный Монитор", *this, true);
     dialog.set_default_size(500, 400);
     dialog.set_border_width(10);
     
-    // Создаем контейнер для содержимого
     Gtk::Box* content_box = dialog.get_content_area();
     
-    // Создаем текстовый виджет для отображения помощи
     Gtk::TextView text_view;
     text_view.set_editable(false);
     text_view.set_cursor_visible(false);
     text_view.set_wrap_mode(Gtk::WRAP_WORD);
     
-    // Устанавливаем русский текст помощи
     Glib::RefPtr<Gtk::TextBuffer> buffer = text_view.get_buffer();
     std::string help_text = 
         "Системный Монитор Процессов\n\n"
@@ -258,7 +239,6 @@ void MainWindow::showHelpDialog() {
     
     buffer->set_text(help_text);
     
-    // Добавляем текстовый виджет в ScrolledWindow
     Gtk::ScrolledWindow scrolled_window;
     scrolled_window.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     scrolled_window.add(text_view);
@@ -266,10 +246,8 @@ void MainWindow::showHelpDialog() {
     
     content_box->pack_start(scrolled_window, true, true, 0);
     
-    // Добавляем кнопку OK
     dialog.add_button("OK", Gtk::RESPONSE_OK);
     
-    // Применяем CSS стили для темной темы
     auto css = Gtk::CssProvider::create();
     try {
         css->load_from_data(
@@ -296,15 +274,12 @@ void MainWindow::showHelpDialog() {
             "}"
         );
         
-        // Применяем стили к диалогу
         dialog.get_style_context()->add_provider(css, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
         dialog.get_style_context()->add_class("help-dialog");
         
-        // Применяем стили к текстовому виду
         text_view.get_style_context()->add_provider(css, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
         text_view.get_style_context()->add_class("help-textview");
         
-        // Применяем стили к кнопке
         auto button = dialog.get_widget_for_response(Gtk::RESPONSE_OK);
         if (button) {
             button->get_style_context()->add_provider(css, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -314,7 +289,6 @@ void MainWindow::showHelpDialog() {
     } catch (const Glib::Error& ex) {
         std::cerr << "CSS error in help dialog: " << ex.what() << std::endl;
         
-        // Fallback: используем прямой метод установки цветов
         content_box->override_background_color(Gdk::RGBA("#2d2d2d"));
         text_view.override_background_color(Gdk::RGBA("#2d2d2d"));
         text_view.override_color(Gdk::RGBA("white"));
@@ -326,7 +300,6 @@ void MainWindow::showHelpDialog() {
         }
     }
     
-    // Показываем все элементы и запускаем диалог
     dialog.show_all();
     dialog.run();
 }
