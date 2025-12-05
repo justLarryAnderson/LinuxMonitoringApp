@@ -20,7 +20,7 @@ private:
     Gtk::Button m_RefreshButton;
     Gtk::Button m_StartCommandButton;
     Gtk::Button m_StopCommandButton;
-    Gtk::Button m_HelpButton;  
+    Gtk::Button m_HelpButton;
     Gtk::Entry m_CommandEntry;
     Gtk::Entry m_SearchEntry;
     Gtk::ScrolledWindow m_ScrolledWindow;
@@ -28,28 +28,34 @@ private:
     Gtk::TextView m_OutputTextView;
     Gtk::ProgressBar m_ProgressBar;
     Gtk::Statusbar m_Statusbar;
-    Gtk::Label m_StatusLabel; 
+    Gtk::Label m_StatusLabel;
     
+    // Models
     Glib::RefPtr<Gtk::ListStore> m_ProcessListStore;
     
+    // Business logic
     ProcessMonitor m_ProcessMonitor;
     CommandExecutor m_CommandExecutor;
     
+    // Signal handlers
     void onRefreshClicked();
     void onStartCommandClicked();
     void onStopCommandClicked();
-    void onHelpClicked();  
+    void onHelpClicked();
     void onSearchChanged();
     void updateProcessList();
     void onCommandFinished(std::string output);
     
+    // UI setup
     void setupProcessTreeView();
     void setupStyles();
-    void showHelpDialog();  
-
+    void showHelpDialog();
+    
+    // Tree model columns
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
     public:
         ModelColumns() {
+            add(m_col_user);      // Новый столбец: пользователь
             add(m_col_pid);
             add(m_col_name);
             add(m_col_cpu);
@@ -57,6 +63,7 @@ private:
             add(m_col_status);
         }
         
+        Gtk::TreeModelColumn<Glib::ustring> m_col_user;    // Колонка для пользователя
         Gtk::TreeModelColumn<Glib::ustring> m_col_pid;
         Gtk::TreeModelColumn<Glib::ustring> m_col_name;
         Gtk::TreeModelColumn<Glib::ustring> m_col_cpu;

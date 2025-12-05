@@ -87,18 +87,22 @@ void MainWindow::setupProcessTreeView() {
     m_ProcessListStore = Gtk::ListStore::create(m_Columns);
     m_ProcessTreeView.set_model(m_ProcessListStore);
     
+    // Add columns - теперь с пользователем первым
+    m_ProcessTreeView.append_column("Пользователь", m_Columns.m_col_user);
     m_ProcessTreeView.append_column("PID", m_Columns.m_col_pid);
     m_ProcessTreeView.append_column("Имя", m_Columns.m_col_name);
     m_ProcessTreeView.append_column("CPU%", m_Columns.m_col_cpu);
     m_ProcessTreeView.append_column("Память%", m_Columns.m_col_memory);
     m_ProcessTreeView.append_column("Статус", m_Columns.m_col_status);
     
-    for (int i = 0; i < 5; i++) {
+    // Set column properties
+    for (int i = 0; i < 6; i++) {  // Теперь 6 колонок
         Gtk::TreeViewColumn* column = m_ProcessTreeView.get_column(i);
         if (column) {
             column->set_resizable(true);
             column->set_sort_column(i);
             
+            // Устанавливаем черный цвет текста для каждой колонки
             auto cell_renderer = column->get_first_cell();
             if (auto text_renderer = dynamic_cast<Gtk::CellRendererText*>(cell_renderer)) {
                 text_renderer->property_foreground() = "black";
@@ -164,6 +168,7 @@ void MainWindow::onSearchChanged() {
     updateProcessList();
 }
 
+
 void MainWindow::updateProcessList() {
     m_ProcessListStore->clear();
     
@@ -178,6 +183,7 @@ void MainWindow::updateProcessList() {
     
     for (const auto& process : processes) {
         Gtk::TreeModel::Row row = *(m_ProcessListStore->append());
+        row[m_Columns.m_col_user] = process.user;
         row[m_Columns.m_col_pid] = process.pid;
         row[m_Columns.m_col_name] = process.name;
         row[m_Columns.m_col_cpu] = process.cpu;
